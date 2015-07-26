@@ -10,7 +10,10 @@ var app = express();
 var bodyParser = require('body-parser');
 var mongoose   = require('mongoose');
 
-var geoDataModel = require('./public/models/GeoData');
+var http  = require('http');
+var server = http.createServer(app);
+
+var geoDataModel = require('./models/GeoData');
 
 var fs = require('fs');
 // connect to mongDB and test if the connection is successful.
@@ -44,7 +47,7 @@ router.use(function(request, response, next) {
 	next();  // make sure we go to the next routes and don't stop here.
 });
 
-//test route to make sure everything is working
+//test route to make sure everything is workingd
 // accessed at GET http://localhost:8888/api
 router.get('/', function(request, response){
 	response.json({message: 'Mongo API for GeoData of nostalgic-pluto'});
@@ -141,20 +144,23 @@ router.route('/imagesinfo/:images_id')
 app.use('/api', router);
 
 //STAER THE SERVER 
-fs.appendFile('./consoleLog', 'Test Begin now!');
-var server = app.listen(9080, function () {
+fs.appendFile('./consoleLog', 'Test Begin now!\r\n');
 
-  var host = server.address().address
-  var port = server.address().port
+server.listen(9080);
+var host = server.address().address
+var port = server.address().port
+console.log('Magic happens on http://%s:%s', host, port)
 
-  console.log('Magic happens on http://%s:%s', host, port)
-  fs.appendFile('./consoleLog', 'Magic happens on http://' + host + ':' + port + '\r\n')
-})
+
+// var server = app.listen(9080, function () {
+
+//   var host = server.address().address
+//   var port = server.address().port
+
+//   console.log('Magic happens on http://%s:%s', host, port)
+//   fs.appendFile('./consoleLog', 'Magic happens on http://' + host + ':' + port + '\r\n')
+// })
 
 // app.listen(port);
 // console.log('Magic happens on port ' + port);
-
-// sudo mongo ds061112.mongolab.com:61112/IbmCloud_p05ramqi_l8oojj16 -u hongkunMongo -p passw0rd
-// mongodb://hongkunMongo:passw0rd@ds061112.mongolab.com:61112/hongkunMongo
-
 

@@ -6,7 +6,7 @@ var Schema = mongoose.Schema;
 var geoDataSchema = new Schema({
 	latitude: Number,
 	longitude: Number,
-	Time: String,
+	time: String,
 	url: String
 });
 
