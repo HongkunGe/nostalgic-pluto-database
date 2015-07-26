@@ -73,7 +73,7 @@ router.route('/image')
 		geo_data.latitude = request.body.latitude; // set the geo_data (comes from the request)
 		geo_data.longitude = request.body.longitude;
 		geo_data.time = request.body.time;
-		geo_data.url = request.body.url;
+		geo_data.name = request.body.name;
 
 		// console.log(request.raw.req);
 
@@ -121,7 +121,7 @@ router.route('/image/:images_id')
 			geo_data.latitude = request.body.latitude; // set the geo_data (comes from the request)
 			geo_data.longitude = request.body.longitude;
 			geo_data.time = request.body.time;
-			geo_data.url = request.body.url;
+			geo_data.name = request.body.name;
 
 			//save the geo_data
 			geo_data.save(function(err){

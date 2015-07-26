@@ -7,7 +7,7 @@ var geoDataSchema = new Schema({
 	latitude: Number,
 	longitude: Number,
 	time: String,
-	url: String
+	name: String
 });
 
 module.exports = mongoose.model('geoData', geoDataSchema);
