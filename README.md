@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Node.js Starter Application
 
 Bluemix provides a Node.js starter application as a template so that you can
@@ -23,3 +24,6 @@ The Node.js starter application has files as below:
 	the `npm` program to install packages, but also Bluemix when it's
 	staging your application.  For more information, see:
 	<https://docs.npmjs.com/files/package.json>
+=======
+# nostalgic-pluto-database
+>>>>>>> 65cb25b0c785f509be55284690722b5f2a52d9b8
