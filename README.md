@@ -7,9 +7,13 @@ Back end for nostalgic-pluto project.
 
 The nostalgic-pluto-database has files as below:
 
+* server.js
+
+	This file contains the server side main code for your application
+	written using the express server package.
 * app.js
 
-	This file contains the server side JavaScript code for your application
+	This file contains the server side start code for application
 	written using the express server package.
 
 * public/
