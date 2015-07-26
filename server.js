@@ -154,7 +154,5 @@ var server = app.listen(9080, function () {
 // app.listen(port);
 // console.log('Magic happens on port ' + port);
 
-// sudo mongo ds061112.mongolab.com:61112/IbmCloud_p05ramqi_l8oojj16 -u hongkunMongo -p passw0rd
-// mongodb://hongkunMongo:passw0rd@ds061112.mongolab.com:61112/hongkunMongo
 
 
