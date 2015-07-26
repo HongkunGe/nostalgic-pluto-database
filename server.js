@@ -14,7 +14,7 @@ var geoDataModel = require('./public/models/GeoData');
 
 var fs = require('fs');
 // connect to mongDB and test if the connection is successful.
-var url = 'mongodb://hongkunMongo:passw0rd@ds061112.mongolab.com:61112/IbmCloud_p05ramqi_l8oojj16';
+var url = '';
 
 mongoose.connect(url, function(err, res){
 	if (err){
