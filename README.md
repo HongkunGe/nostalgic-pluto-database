@@ -52,6 +52,19 @@ The API operations include:
 
 	http://nostalgic-pluto-image-api.mybluemix.net/api/image/55b252bfec87e4590e000006       Delete one specific object.
 
+## Objects
+
+The format of object in the database is:
+
+	{
+		latitude: Number, 
+		longitude: Number,
+		time: String, 
+		name: String
+	}
+
+Especially, time format is YYYY-MM-DDThh:mm:ssTZD
+
 =======
 
 >>>>>>> 65cb25b0c785f509be55284690722b5f2a52d9b8

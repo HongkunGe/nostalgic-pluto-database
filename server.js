@@ -17,7 +17,7 @@ var geoDataModel = require('./models/GeoData');
 
 var fs = require('fs');
 // connect to mongDB and test if the connection is successful.
-var url = 'mongodb://hongkunMongo:passw0rd@ds061112.mongolab.com:61112/IbmCloud_p05ramqi_l8oojj16';
+var url = '';
 
 mongoose.connect(url, function(err, res){
 	if (err){
@@ -154,8 +154,11 @@ console.log('Magic happens on http://%s:%s', host, port)
 
 // var server = app.listen(9080, function () {
 
+<<<<<<< HEAD
 //   var host = server.address().address
 //   var port = server.address().port
+=======
+>>>>>>> 71cfaa8ada909a8cf1c4d3d81dc95c2e813ff97b
 
 //   console.log('Magic happens on http://%s:%s', host, port)
 //   fs.appendFile('./consoleLog', 'Magic happens on http://' + host + ':' + port + '\r\n')
