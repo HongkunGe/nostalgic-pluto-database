@@ -61,10 +61,12 @@ The API operations include:
 The format of object in the database is:
 
 	{
-		latitude: Number, 
-		longitude: Number,
-		time: String, 
-		name: String
+		name: String,
+		time: String,
+		loc: {
+			type: { type: String },
+			coordinates: [Number]
+		}
 	}
 
 Especially, time format is YYYY-MM-DDThh:mm:ssTZD
