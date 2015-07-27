@@ -31,11 +31,10 @@ mongoose.connect(url, function(err, res){
 		console.log('ERROR connecting to mongoDB!');
 		fs.appendFile('./consoleLog', 'ERROR connecting to mongoDB!\r\n');
 	}else{
-		console.log("Successfully Connected!");
-		fs.appendFile('./consoleLog', 'Successfully Connected!\r\n');
+		console.log("Connected to mongolab.");
+		fs.appendFile('./consoleLog', 'Connected to mongolab.\r\n');
 	}
 }); // connect to our database
-
 
 // configure app to use bodyParser()
 // this will get the data from a POST for us.
@@ -60,6 +59,32 @@ router.get('/', function(request, response){
 	response.json({message: 'Mongo API for GeoData of nostalgic-pluto'});
 });
 
+router.route('/geoquery').get(function(request, response){
+	var lon = parseFloat(request.query.lon);
+	var lat = parseFloat(request.query.lat);
+	var max = parseFloat(request.query.max);
+	// lon = -78.8564711; lat = 35.9050158; max = 8046.72;
+
+	if(!lat || !lon || !max) {
+		response.send("Missing lat, lon, or max params");
+		console.log("Missing lat, lon, or max params");
+		return;
+	}
+
+	geoDataModel
+		.find({
+		    loc:{ 
+		        $near : {
+		            $geometry: { type: "Point",  coordinates: [ lon, lat ] },
+		            $maxDistance: max // 5 miles
+		        }
+		    }
+		})
+		.exec(function(err,list){
+			console.log("There are",list.length,"posts within", max, "meters of "+lon+", "+lat);
+			response.json(list);
+		});
+});
 
 router.route('/image')
 
@@ -68,14 +93,20 @@ router.route('/image')
 
 		var geo_data = new geoDataModel();  // create a new instance of the geoDataModel
 
-		console.log(request.body) // populated!
+		var b = request.body;
+		var errorCheck = validateRequest(b);
+		if(errorCheck){
+			console.log(errorCheck);
+			response.send(errorCheck)
+			return;
+		}
 
-		geo_data.latitude = request.body.latitude; // set the geo_data (comes from the request)
-		geo_data.longitude = request.body.longitude;
-		geo_data.time = request.body.time;
-		geo_data.name = request.body.name;
-
-		// console.log(request.raw.req);
+		geo_data.name = b.name;
+		geo_data.time = b.time;
+		geo_data.loc = {
+			"type": "Point",
+			"coordinates": [b.loc.coordinates[0], b.loc.coordinates[1]]
+		}
 
 		//save the geo_data and check for errors.		
 		geo_data.save(function(err){
@@ -118,10 +149,20 @@ router.route('/image/:images_id')
 			if(err)
 				response.send(err);
 
-			geo_data.latitude = request.body.latitude; // set the geo_data (comes from the request)
-			geo_data.longitude = request.body.longitude;
-			geo_data.time = request.body.time;
-			geo_data.name = request.body.name;
+			var b = request.body;
+			var errorCheck = validateRequest(b);
+			if(errorCheck){
+				console.log(errorCheck);
+				response.send(errorCheck)
+				return;
+			}
+
+			geo_data.name = b.name;
+			geo_data.time = b.time;
+			geo_data.loc = {
+				"type": "Point",
+				"coordinates": [b.loc.coordinates[0], b.loc.coordinates[1]]
+			}
 
 			//save the geo_data
 			geo_data.save(function(err){
@@ -145,6 +186,24 @@ router.route('/image/:images_id')
 			response.json({message: 'Successfully deleted!'});
 		});
 	});
+
+
+// re
+function validateRequest(b) {
+	console.log("Request body:", b);
+	if(!b.name) {
+		return "Missing 'name' attribute";
+	} else if(!b.time) {
+		return "Missing 'time' attribute";
+	} else if(!b.loc) {
+		return "Missing 'loc' attribute";
+	} else if(b.loc && !b.loc.type) {
+		return "Missing 'loc.type' attribute";
+	} else if(b.loc && !b.loc.coordinates) {
+		return "Missing 'loc.coordinates' attribute";
+	}
+	else return 0;
+}
 
 //REGISTER OUR routes
 //all the routes will be prefixed with /api

@@ -4,10 +4,12 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var geoDataSchema = new Schema({
-	latitude: Number,
-	longitude: Number,
+	name: String,
 	time: String,
-	name: String
+	loc: {
+		type: { type: String },
+		coordinates: [Number]
+	}
 });
 
 module.exports = mongoose.model('geoData', geoDataSchema);

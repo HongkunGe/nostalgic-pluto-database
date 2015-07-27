@@ -32,6 +32,10 @@ The nostalgic-pluto-database has files as below:
 
 The API operations include: 
 
+* GET /api/geoquery?lon=-78.8564711&lat=35.9050158&max=1000
+
+	Gets all images within 1000 meters of the given coordinates
+
 * GET 
 
 	http://nostalgic-pluto-image-api.mybluemix.net/api/image/          						Get all images objects.
