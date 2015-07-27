@@ -8,7 +8,7 @@ var geoDataSchema = new Schema({
 	time: String,
 	loc: {
 		type: { type: String },
-		coordinates: [Number, Number]
+		coordinates: [Number]
 	}
 });
 
