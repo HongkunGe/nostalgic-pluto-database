@@ -103,10 +103,15 @@ router.route('/image')
 
 		geo_data.name = b.name;
 		geo_data.time = b.time;
+		geo_data.description = b.description;
 		geo_data.loc = {
 			"type": "Point",
 			"coordinates": [b.loc.coordinates[0], b.loc.coordinates[1]]
 		}
+// TODO: Prototype: assign the different levels with random number. Will implement the functionality later. 
+		geo_data.level.ok = Math.floor((Math.random() * 100) + 1);
+		geo_data.level.poor = Math.floor((Math.random() * 100) + 1);
+		geo_data.level.crit = Math.floor((Math.random() * 100) + 1);
 
 		//save the geo_data and check for errors.		
 		geo_data.save(function(err){
@@ -159,6 +164,7 @@ router.route('/image/:images_id')
 
 			geo_data.name = b.name;
 			geo_data.time = b.time;
+			geo_data.description = b.description;
 			geo_data.loc = {
 				"type": "Point",
 				"coordinates": [b.loc.coordinates[0], b.loc.coordinates[1]]
@@ -217,6 +223,6 @@ fs.appendFile('./consoleLog', 'Test Begin now!\r\n');
 app.listen(appEnv.port, appEnv.bind, function() {
 
 	// print a message when the server starts listening
-  console.log("server starting on " + appEnv.url);
+	console.log("server starting on " + appEnv.url);
 });
 
