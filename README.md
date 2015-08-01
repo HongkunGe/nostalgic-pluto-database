@@ -63,6 +63,12 @@ The format of object in the database is:
 	{
 		name: String,
 		time: String,
+		description: String,
+		level: {
+			ok: Number,
+			poor: Number,
+			crit: Number
+		},
 		loc: {
 			type: { type: String },
 			coordinates: [Number]
