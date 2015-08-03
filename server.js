@@ -1,34 +1,40 @@
-// server.js
+/*jshint node:true*/
 
-//BASE SETUP
+//------------------------------------------------------------------------------
+// node.js starter application for Bluemix
+//------------------------------------------------------------------------------
 
-
-// call the needed packages.
-
+// cfenv provides access to your Cloud Foundry environment
+// for more info, see: https://www.npmjs.com/package/cfenv
+var cfenv = require('cfenv');
 var express = require('express');
+
 var app = express();
+
 var bodyParser = require('body-parser');
 var mongoose   = require('mongoose');
-
-var http  = require('http');
-var server = http.createServer(app);
 
 var geoDataModel = require('./models/GeoData');
 
 var fs = require('fs');
 // connect to mongDB and test if the connection is successful.
-var url = '';
+var url = 'mongodb://hongkunMongo:passw0rd@ds061112.mongolab.com:61112/IbmCloud_p05ramqi_l8oojj16';
+
+// serve the files out of ./public as our main files
+app.use(express.static(__dirname + '/public'));
+
+// get the app environment from Cloud Foundry
+var appEnv = cfenv.getAppEnv();
 
 mongoose.connect(url, function(err, res){
 	if (err){
 		console.log('ERROR connecting to mongoDB!');
 		fs.appendFile('./consoleLog', 'ERROR connecting to mongoDB!\r\n');
 	}else{
-		console.log("Successfully Connected!");
-		fs.appendFile('./consoleLog', 'Successfully Connected!\r\n');
+		console.log("Connected to mongolab.");
+		fs.appendFile('./consoleLog', 'Connected to mongolab.\r\n');
 	}
 }); // connect to our database
-
 
 // configure app to use bodyParser()
 // this will get the data from a POST for us.
@@ -53,22 +59,59 @@ router.get('/', function(request, response){
 	response.json({message: 'Mongo API for GeoData of nostalgic-pluto'});
 });
 
+router.route('/geoquery').get(function(request, response){
+	var lon = parseFloat(request.query.lon);
+	var lat = parseFloat(request.query.lat);
+	var max = parseFloat(request.query.max);
+	// lon = -78.8564711; lat = 35.9050158; max = 8046.72;
 
-router.route('/imagesinfo')
+	if(!lat || !lon || !max) {
+		response.send("Missing lat, lon, or max params");
+		console.log("Missing lat, lon, or max params");
+		return;
+	}
 
-	// Upload a new image info (accessed at POST http://localhost:8888/api/imagesinfo)
+	geoDataModel
+		.find({
+		    loc:{ 
+		        $near : {
+		            $geometry: { type: "Point",  coordinates: [ lon, lat ] },
+		            $maxDistance: max // 5 miles
+		        }
+		    }
+		})
+		.exec(function(err,list){
+			console.log("There are",list.length,"posts within", max, "meters of "+lon+", "+lat);
+			response.json(list);
+		});
+});
+
+router.route('/image')
+
+	// Upload a new image info (accessed at POST http://localhost:8888/api/image)
 	.post(function(request, response) {
 
 		var geo_data = new geoDataModel();  // create a new instance of the geoDataModel
 
-		console.log(request.body) // populated!
+		var b = request.body;
+		var errorCheck = validateRequest(b);
+		if(errorCheck){
+			console.log(errorCheck);
+			response.send(errorCheck)
+			return;
+		}
 
-		geo_data.latitude = request.body.latitude; // set the geo_data (comes from the request)
-		geo_data.longitude = request.body.longitude;
-		geo_data.Time = request.body.Time;
-		geo_data.url = request.body.url;
-
-		// console.log(request.raw.req);
+		geo_data.name = b.name;
+		geo_data.time = b.time;
+		geo_data.description = b.description;
+		geo_data.loc = {
+			"type": "Point",
+			"coordinates": [b.loc.coordinates[0], b.loc.coordinates[1]]
+		}
+// TODO: Prototype: assign the different levels with random number. Will implement the functionality later. 
+		geo_data.level.ok = Math.floor((Math.random() * 100) + 1);
+		geo_data.level.poor = Math.floor((Math.random() * 100) + 1);
+		geo_data.level.crit = Math.floor((Math.random() * 100) + 1);
 
 		//save the geo_data and check for errors.		
 		geo_data.save(function(err){
@@ -81,7 +124,7 @@ router.route('/imagesinfo')
 		});
 	})
 	
-	// get all the geo_data (accessed at GET http://localhost:8888/api/imagesinfo)
+	// get all the geo_data (accessed at GET http://localhost:8888/api/image)
 	.get(function(request, response){
 		geoDataModel.find(function(err, geo_data){
 			if (err)
@@ -92,9 +135,9 @@ router.route('/imagesinfo')
 	});
 
 
-router.route('/imagesinfo/:images_id')
+router.route('/image/:images_id')
 
-	// get the image info with that id (accessed at GET http://localhost:8888/api/imagesinfo/:images_id )
+	// get the image info with that id (accessed at GET http://localhost:8888/api/image/:images_id )
 	.get(function(request, response) {
 		geoDataModel.findById(request.params.images_id, function(err, geo_data) {
 			if (err)
@@ -104,17 +147,31 @@ router.route('/imagesinfo/:images_id')
 		});
 	})
 
-	// update the bear with that id( accessed at PUT http://localhost:8888/api/imagesinfo/:images_id )
+	// update the bear with that id( accessed at PUT http://localhost:8888/api/image/:images_id )
 	.put(function(request, response){
 		// use the bear model to find the bear we want.
 		geoDataModel.findById(request.params.images_id, function(err, geo_data){
 			if(err)
 				response.send(err);
 
-			geo_data.latitude = request.body.latitude; // set the geo_data (comes from the request)
-			geo_data.longitude = request.body.longitude;
-			geo_data.Time = request.body.Time;
-			geo_data.url = request.body.url;
+			var b = request.body;
+			var errorCheck = validateRequest(b);
+			if(errorCheck){
+				console.log(errorCheck);
+				response.send(errorCheck)
+				return;
+			}
+
+			geo_data.name = b.name;
+			geo_data.time = b.time;
+			geo_data.description = b.description;
+			geo_data.loc = {
+				"type": "Point",
+				"coordinates": [b.loc.coordinates[0], b.loc.coordinates[1]]
+			}
+			geo_data.level.ok = Math.floor((Math.random() * 100) + 1);
+			geo_data.level.poor = Math.floor((Math.random() * 100) + 1);
+			geo_data.level.crit = Math.floor((Math.random() * 100) + 1);
 
 			//save the geo_data
 			geo_data.save(function(err){
@@ -128,7 +185,7 @@ router.route('/imagesinfo/:images_id')
 		});
 	})
 
-	// delete the bear with the id (accessed at DELETE http://localhost:8888/api/imagesinfo/:images_id)
+	// delete the bear with the id (accessed at DELETE http://localhost:8888/api/image/:images_id)
 	.delete(function (request, response) {
 		geoDataModel.remove({
 			_id: request.params.images_id
@@ -139,6 +196,50 @@ router.route('/imagesinfo/:images_id')
 		});
 	});
 
+// the API is only for update some images info. add description and level info.
+router.route('/image/update/:images_id')
+	// update the bear with that id( accessed at PUT http://localhost:8888/api/image/:images_id )
+	.put(function(request, response){
+		// use the bear model to find the bear we want.
+		geoDataModel.findById(request.params.images_id, function(err, geo_data){
+			if(err)
+				response.send(err);
+
+
+			geo_data.description = 'Here is some placeholder text where the user could add a description of the photo they uploaded';
+
+			geo_data.level.ok = Math.floor((Math.random() * 100) + 1);
+			geo_data.level.poor = Math.floor((Math.random() * 100) + 1);
+			geo_data.level.crit = Math.floor((Math.random() * 100) + 1);
+
+			//save the geo_data
+			geo_data.save(function(err){
+				if (err)
+					res.send(err);
+
+				// if file is updated successfully, return the message and doc id.
+				response.json({message: 'Image info updated!', _id: geo_data._id});
+			});
+
+		});
+	})
+// re
+function validateRequest(b) {
+	console.log("Request body:", b);
+	if(!b.name) {
+		return "Missing 'name' attribute";
+	} else if(!b.time) {
+		return "Missing 'time' attribute";
+	} else if(!b.loc) {
+		return "Missing 'loc' attribute";
+	} else if(b.loc && !b.loc.type) {
+		return "Missing 'loc.type' attribute";
+	} else if(b.loc && !b.loc.coordinates) {
+		return "Missing 'loc.coordinates' attribute";
+	}
+	else return 0;
+}
+
 //REGISTER OUR routes
 //all the routes will be prefixed with /api
 app.use('/api', router);
@@ -146,23 +247,16 @@ app.use('/api', router);
 //STAER THE SERVER 
 fs.appendFile('./consoleLog', 'Test Begin now!\r\n');
 
-server.listen(9080);
-var host = server.address().address
-var port = server.address().port
-console.log('Magic happens on http://%s:%s', host, port)
+
+var server = app.listen(8888, function () {
+
+  var host = server.address().address
+  var port = server.address().port
 
 
-// var server = app.listen(9080, function () {
-
-<<<<<<< HEAD
-//   var host = server.address().address
-//   var port = server.address().port
-=======
->>>>>>> 71cfaa8ada909a8cf1c4d3d81dc95c2e813ff97b
-
-//   console.log('Magic happens on http://%s:%s', host, port)
-//   fs.appendFile('./consoleLog', 'Magic happens on http://' + host + ':' + port + '\r\n')
-// })
+  console.log('Magic happens on http://%s:%s', host, port)
+  fs.appendFile('./consoleLog', 'Magic happens on http://' + host + ':' + port + '\r\n')
+})
 
 // app.listen(port);
 // console.log('Magic happens on port ' + port);

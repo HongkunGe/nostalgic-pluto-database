@@ -169,6 +169,9 @@ router.route('/image/:images_id')
 				"type": "Point",
 				"coordinates": [b.loc.coordinates[0], b.loc.coordinates[1]]
 			}
+			geo_data.level.ok = Math.floor((Math.random() * 100) + 1);
+			geo_data.level.poor = Math.floor((Math.random() * 100) + 1);
+			geo_data.level.crit = Math.floor((Math.random() * 100) + 1);
 
 			//save the geo_data
 			geo_data.save(function(err){
