@@ -223,7 +223,7 @@ router.route('/image/update/:images_id')
 
 		});
 	})
-// re
+
 function validateRequest(b) {
 	console.log("Request body:", b);
 	if(!b.name) {
@@ -257,7 +257,3 @@ var server = app.listen(8888, function () {
   console.log('Magic happens on http://%s:%s', host, port)
   fs.appendFile('./consoleLog', 'Magic happens on http://' + host + ':' + port + '\r\n')
 })
-
-// app.listen(port);
-// console.log('Magic happens on port ' + port);
-
